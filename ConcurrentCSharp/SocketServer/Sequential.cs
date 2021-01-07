@@ -52,6 +52,7 @@ namespace Sequential
         public SequentialServer(Setting settings)
         {
             // todo 1: which object is sending the settings? how is it used by the server?
+            //answer: SocketServer.Program.Main() -> new ServerSimulator(settings) -> ServerSimulator.configure().
             this.settings = settings;
             this.ipAddress = IPAddress.Parse(settings.serverIPAddress);
         }
@@ -63,23 +64,35 @@ namespace Sequential
             try
             {
                 // todo 2: analyze how a listening socket is established. A non-blocking (what does it mean?) listen with max number of pending requests.
+                //answer: a non-blocking socket has functions that return immediately when called, whereas blocking sockets wait for the expected behavior of the function (like getting data from a db) to be done before returning.
                 // todo 3: What is the role of this pending size?
+                //answer: what pending size?
                 localEndPoint = new IPEndPoint(this.ipAddress, settings.serverPortNumber);
                 listener = new Socket(ipAddress.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
                 listener.Bind(localEndPoint);
                 listener.Listen(settings.serverListeningQueue);
                 // todo 4: analyse details of this listening loop. Everything in the server starts here.
-                while (true)
+                //answer: for every client that is requesting access, a new connection is made.
+                //answer: this connection is in the form of a socket. Maybe because every client gets its own address or something?
+                while(true)
                 {
                     Console.WriteLine("Waiting for incoming connections ... ");
                     Socket connection = listener.Accept();
                     this.numOfClients++;
+
+                    //ThreadWithState tws = new ThreadWithState(connection, bufferSize, settings);
+                    //Thread t = new Thread(new ThreadStart(tws.ThreadProc));
+
                     this.handleClient(connection);
                 }
             }catch (Exception e){ Console.Out.WriteLine("[Server] Preparation: {0}",e.Message); }
         }
 
         // todo 5: what is the functionality of this method?
+        //answer: let the client know that the server is ready.
+        //answer: receive message from the client.
+        //answer: process the client message.
+        //answer: send a response to the client based on the client's message.
         public void handleClient(Socket con)
         {
             string data = "", reply = "";
@@ -105,6 +118,7 @@ namespace Sequential
                 {
                     case Message.terminate:
                         //todo 7: when this case is executed?
+                        //answer: when the terminating client sends a "[Terminating experiment]" message
                         Console.ForegroundColor = ConsoleColor.DarkRed;
                         Console.WriteLine("[Server] received from the client -> {0} ", msg);
                         Console.ResetColor();

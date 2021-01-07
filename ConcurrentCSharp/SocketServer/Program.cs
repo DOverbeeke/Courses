@@ -48,6 +48,9 @@ namespace Program
             {
                 ConcurrentServer server = new ConcurrentServer(settings);
                 server.prepareServer();
+                //Added by Donald
+                Console.WriteLine("Press any key to stop");
+                Console.ReadKey();
             }
             catch (Exception e)
             {
